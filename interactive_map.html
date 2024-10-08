@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Event Map</title>
+    <style>
+        #map-container {
+            height: 600px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map-container"></div>
+
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/react-leaflet@3.1.0/umd/react-leaflet.min.js"></script>
+
+    <script>
+        const { MapContainer, TileLayer, Marker, Popup } = ReactLeaflet;
+
+        const eventLocations = [
+            {
+                id: 1,
+                name: "Event Location",
+                coordinates: [33.56242, 35.37943],
+                image: "https://v0.dev/placeholder.svg",
+                description: "Description of the event",
+                link: "https://example.com"
+            },
+            // Add more locations as needed
+        ];
+
+        function InteractiveMap() {
+            const [activeLocation, setActiveLocation] = React.useState(null);
+
+            return React.createElement(MapContainer, {
+                center: [33.56242, 35.37943],
+                zoom: 13,
+                style: { height: '100%', width: '100%' }
+            },
+                React.createElement(TileLayer, {
+                    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }),
+                eventLocations.map(location =>
+                    React.createElement(Marker, {
+                        key: location.id,
+                        position: location.coordinates,
+                        eventHandlers: {
+                            click: () => setActiveLocation(location),
+                        }
+                    },
+                        activeLocation && activeLocation.id === location.id &&
+                        React.createElement(Popup, {},
+                            React.createElement('div', { style: { maxWidth: '300px' } },
+                                React.createElement('img', { src: location.image, alt: location.name, style: { width: '100%', height: '150px', objectFit: 'cover', marginBottom: '8px', borderRadius: '4px' } }),
+                                React.createElement('h2', { style: { fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '8px' } }, location.name),
+                                React.createElement('p', { style: { marginBottom: '8px' } }, location.description),
+                                React.createElement('p', { style: { marginBottom: '8px' } }, `Coordinates: ${location.coordinates.join(', ')}`),
+                                React.createElement('a', { href: location.link, target: '_blank', rel: 'noopener noreferrer', style: { color: '#3b82f6', textDecoration: 'none' } }, 'More Information')
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        ReactDOM.render(React.createElement(InteractiveMap), document.getElementById('map-container'));
+    </script>
+</body>
+</html>
